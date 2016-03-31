@@ -51,6 +51,13 @@ function loadData() {
             $nytElem.append(items[i]);
         };
 
+    // .error() is chained to ajax request and handles errors if it fails - eg if the NYTimes link is broken.
+    // .error() is now deprecated and .fail() is recommended
+    // }).error(function(error){
+    //     $nytHeaderElem.text('New York Times Articles Could Not be Loaded');
+
+    }).fail(function(e){
+        $nytHeaderElem.text('New York Times Articles Could Not be Loaded');
     });
 
     return false;
