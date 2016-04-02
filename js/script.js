@@ -34,7 +34,7 @@ function loadData() {
 
     // filter results on type_of_material, newest first, this year, first page (0-9 articles )
     // Please replace all the "x"s with your own NYT API key
-    var myNYTAPI = 'xxxxxxxx'
+    var myNYTAPI = 'xxxx';
     var nytURL= 'http://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + cityStr +
         '&fq=type_of_material:("News")&begin_date=20160101&sort=newest&page0&api-key=' + myNYTAPI;
 
@@ -50,7 +50,7 @@ function loadData() {
         // });
 
         for (var i = 0, articlesLen = returnedArticles.length; i < articlesLen; i++) {
-            items.push("<li class='article'><a href=" + returnedArticles[i].web_url + "'>" + returnedArticles[i].headline.main + "</a>" +
+            items.push("<li class='article'><a href=" + returnedArticles[i].web_url + ">" + returnedArticles[i].headline.main + "</a>" +
                 "<p>" + returnedArticles[i].snippet + "</p></li>");
             $nytElem.append(items[i]);
         };
@@ -66,8 +66,40 @@ function loadData() {
 
     // load wikipedia data
 
+    // var wpURL = 'https://en.wikipedia.org/w/api.php';
+    // var wpBaseURL = 'https://en.wikipedia.org/wiki/';
+    // $.ajax(wpURL, {
+    //     data: {
+    //         action: 'query',
+    //         list: 'search',
+    //         srsearch: cityStr,
+    //         format: 'json'
+    //     },
+    //     dataType: 'jsonp',
+    //     success: function(data){
+    //         // do something with data
+    //         //console.log('wiki title', data.query.search[0].title);
+    //         var wikiArticles = data.query.search;
+    //         //console.log('wiki title', wikiArticles[0].title);
+    //         var items = [];
+    //         for (var i = 0, wikiLen = wikiArticles.length; i < wikiLen; i++) {
+    //             //console.log('wiki link: ' + wpBaseURL + wikiArticles[i].title);
+    //             items.push('<li><a href ="' + wpBaseURL + wikiArticles[i].title + '">' + wikiArticles[i].title +'</a></li>');
+    //             $wikiElem.append(items[i]);
+    //         };
+    //     }
+    // });
+
+    // load wikipedia data with 'done' instead of 'success' and setTimeout error handling
+
     var wpURL = 'https://en.wikipedia.org/w/api.php';
     var wpBaseURL = 'https://en.wikipedia.org/wiki/';
+
+    // 8 second timer for error handling
+    var wikiRequestTimeout = setTimeout(function(){
+        $wikiElem.text('Failed to get Wikipedia resources');
+    }, 8000);
+
     $.ajax(wpURL, {
         data: {
             action: 'query',
@@ -75,20 +107,17 @@ function loadData() {
             srsearch: cityStr,
             format: 'json'
         },
-        dataType: 'jsonp',
-        success: function(data){
-            // do something with data
-            //console.log('wiki title', data.query.search[0].title);
-            var wikiArticles = data.query.search;
-            //console.log('wiki title', wikiArticles[0].title);
-            var items = [];
-            for (var i = 0, wikiLen = wikiArticles.length; i < wikiLen; i++) {
-                //console.log('wiki link: ' + wpBaseURL + wikiArticles[i].title);
-                items.push('<li><a href ="' + wpBaseURL + wikiArticles[i].title + '">' + wikiArticles[i].title +'</a></li>');
-                $wikiElem.append(items[i]);
-            };
-        }
+        dataType: 'jsonp'
+    }).done(function(data){
+        var wikiArticles = data.query.search;
+        var items = [];
+        for (var i = 0, wikiLen = wikiArticles.length; i < wikiLen; i++) {
+            items.push('<li><a href ="' + wpBaseURL + wikiArticles[i].title + '">' + wikiArticles[i].title +'</a></li>');
+            $wikiElem.append(items[i]);
+        };
+        clearTimeout(wikiRequestTimeout);
     });
+
 
 
 
